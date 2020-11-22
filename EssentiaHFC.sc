@@ -1,5 +1,6 @@
 EssentiaHFC : UGen {
-    *kr { arg in;
-		^this.multiNew('audio', in)
+	*kr { arg in, type="Masri";
+		var typeInt = ["Masri", "Jensen", "Brossier"].detectIndex({arg item, i; item==type});
+		^this.multiNew('audio', in, typeInt)
     }
 }
