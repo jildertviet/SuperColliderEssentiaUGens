@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (JildertHfc)
+project (SuperCollideEssentiaUGens)
 
 include_directories(${SC_PATH}/include/plugin_interface)
 include_directories(${SC_PATH}/include/common)
@@ -14,19 +14,14 @@ if(APPLE OR WIN32)
 set(CMAKE_SHARED_MODULE_SUFFIX ".scx")
 endif()
 
-add_library(JildertOnset MODULE JildertOnset.cpp)
-add_library(JildertHfc MODULE JildertHfc) 
-#add_library(JildertBeatTrack MODULE JildertBeatTrack) 
-#add_library(JildertSpectralComplexity MODULE JildertSpectralComplexity.cpp)
+add_library(EssentiaHFC MODULE EssentiaHFC) 
 
 file(GLOB LIBRARIES 
-"/usr/local/Cellar/essentia/HEAD-485a7a2/lib/libessentia.dylib"
+"${ESSENTIA_PATH}/lib/libessentia.dylib"
 )
 message("Dynamic linked libraries: ${LIBRARIES}")
 
-target_link_libraries(JildertHfc ${LIBRARIES}) 
-#target_link_libraries(JildertBeatTrack ${LIBRARIES}) 
-#target_link_libraries(JildertSpectralComplexity ${LIBRARIES}) 
+target_link_libraries(EssentiaHFC ${LIBRARIES}) 
 
 SET(GCC_COVERAGE_COMPILE_FLAGS "-std=c++0x -pthread")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
