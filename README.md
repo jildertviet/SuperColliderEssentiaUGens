@@ -24,3 +24,14 @@ make
 ~~~
 # Disclaimer
 The C++ code is quite old, experimental and messy. Hopefully I'll change this. However, this example still demonstrates the succesfull implementation of Essentia within SuperCollider
+# Example
+~~~
+(
+{
+	var hfc, sin;
+	sin = SinOsc.ar(LFNoise1.kr(1, 400, 1000), mul: 1);
+	hfc = EssentiaHFC.kr(sin).poll;
+	sin!2; // Only play the sine oscillator, show the HFC value with .poll
+}.play;
+)
+~~~
