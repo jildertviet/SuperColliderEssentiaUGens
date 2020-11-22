@@ -4,9 +4,9 @@ Running Essentia algorithms in SuperCollider
 # Installation
 (Currently only tested on OSX 10.15.7 w/ SuperCollider 3.11)
 
-Install Essentia with Homebrew.
+Install [Essentia](https://github.com/MTG/essentia) with Homebrew.
 ~~~
-brew install essentie --HEAD
+brew install essentia --HEAD
 ~~~
 I also needed to install Eigen (otherwise I had this error: “unsupported/Eigen/CXX11/Tensor: No such file or directory”)
 ~~~
