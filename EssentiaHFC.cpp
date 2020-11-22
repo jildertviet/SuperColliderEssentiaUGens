@@ -41,7 +41,7 @@ extern "C"{
 
 void EssentiaHFC_Ctor(EssentiaHFC *unit){
     unit->frameSize = 1024;
-    unit->sampleRate = 441000;
+    unit->sampleRate = 441000; // Shouldn't be static
     unit->zeropadding = 0;
     
     unit->spec = new vector<Real>;
