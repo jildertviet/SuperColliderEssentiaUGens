@@ -15,13 +15,17 @@ set(CMAKE_SHARED_MODULE_SUFFIX ".scx")
 endif()
 
 add_library(EssentiaHFC MODULE EssentiaHFC) 
+add_library(EssentiaSpectralComplexity MODULE EssentiaSpectralComplexity) 
 
 file(GLOB LIBRARIES 
 "${ESSENTIA_PATH}/lib/libessentia.dylib"
 )
+
 message("Dynamic linked libraries: ${LIBRARIES}")
 
 target_link_libraries(EssentiaHFC ${LIBRARIES}) 
+target_link_libraries(EssentiaSpectralComplexity ${LIBRARIES}) 
+
 
 SET(GCC_COVERAGE_COMPILE_FLAGS "-std=c++0x -pthread")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
