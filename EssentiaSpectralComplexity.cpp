@@ -43,7 +43,7 @@ extern "C"{
 }
 
 void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit){
-    unit->frameSize = 1024;
+    unit->frameSize = IN0(2);
     unit->zeropadding = 0;
     unit->writePos = 0;
     
@@ -55,7 +55,7 @@ void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit){
     initEssentia(unit);
 
     SETCALC(processs);
-//    processs(unit, 1);
+    processs(unit, 1);
 }
 
 void initEssentia(EssentiaSpectralComplexity* unit){
@@ -69,7 +69,9 @@ void initEssentia(EssentiaSpectralComplexity* unit){
                             "zeroPadding", 0);
     unit->spectrum = factory.create("Spectrum",
                               "size", unit->frameSize);
-    unit->SpectralComplexity = factory.create("SpectralComplexity", "sampleRate", SAMPLERATE);
+    unit->SpectralComplexity = factory.create("SpectralComplexity",
+                                              "sampleRate", SAMPLERATE,
+                                              "magnitudeThreshold",IN0(1)); // the minimum spectral-peak magnitude that contributes to spectral complexity", "[0,inf)", 0.005);
     
     // Link all the algorithms
     linkAlgorithms(unit);
@@ -91,6 +93,11 @@ void linkAlgorithms(EssentiaSpectralComplexity* unit){
 }
 
 void processs(EssentiaSpectralComplexity *unit, int inNumSamples){
+    if(inNumSamples==1){
+        OUT(0)[0] = 0;
+        return;
+    }
+    
     bool bCalculate = false;
     for (int i=0; i<inNumSamples; i++){ // Read the incoming signal
         Real value = (Real) IN(0)[i];
@@ -101,7 +108,6 @@ void processs(EssentiaSpectralComplexity *unit, int inNumSamples){
             bCalculate = true;
         }
     }
-    
     
     if(bCalculate){
         unit->dcremoval->compute();

@@ -34,4 +34,14 @@ The C++ code is quite old, experimental and messy. Hopefully I'll change this. H
 	sin!2; // Only play the sine oscillator, show the HFC value with .poll
 }.play;
 )
+
+// Or try this
+
+(
+{
+    var sc, osc = WhiteNoise.ar(1) * LFPulse.kr(1);
+    sc = EssentiaSpectralComplexity.kr(osc).poll;
+    osc!2;
+}.play;
+)
 ~~~

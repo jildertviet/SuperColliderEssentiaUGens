@@ -61,7 +61,7 @@ void EssentiaHFC_Ctor(EssentiaHFC *unit){
     initEssentia(unit);
     
     SETCALC(processs);
-//    processs(unit, 1);
+    processs(unit, 1);
 }
 
 void initEssentia(EssentiaHFC* unit){
@@ -98,6 +98,11 @@ void linkAlgorithms(EssentiaHFC* unit){
 }
 
 void processs(EssentiaHFC *unit, int inNumSamples){
+    if(inNumSamples==1){
+        OUT(0)[0] = 0;
+        return;
+    }
+    
     bool bCalculate = false;
     for (int i=0; i<inNumSamples; i++){ // Read the incoming signal
         Real value = (Real) IN(0)[i];
