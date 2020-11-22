@@ -23,4 +23,4 @@ cmake -DESSENTIA_PATH=/usr/local/opt/essentia -DEIGEN_PATH=/usr/local/opt/eigen 
 make
 ~~~
 # Disclaimer
-The C++ code is quite old, experimental and messy. Hopefully I'll change this, but hopefully this example still demonstrates the succesfull implementation of Essentia within SuperCollider
+The C++ code is quite old, experimental and messy. Hopefully I'll change this. However, this example still demonstrates the succesfull implementation of Essentia within SuperCollider
