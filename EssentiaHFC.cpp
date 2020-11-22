@@ -16,7 +16,6 @@ using namespace std;
 static InterfaceTable *ft;
 
 struct EssentiaHFC : public Unit {
-    float value;
     Algorithm* hfc;
     Algorithm* spectrum;
     Algorithm* window;
@@ -30,7 +29,6 @@ struct EssentiaHFC : public Unit {
     int frameSize;
     int sampleRate;
     int zeropadding;
-    int bufferSize;
     string type;
     int writePos;
     bool bComputed;
@@ -47,23 +45,21 @@ extern "C"{
 void EssentiaHFC_Ctor(EssentiaHFC *unit){
     string types[3] = {"Masri","Jensen","Brossier"};
     unit->type = types[(int)IN0(1)];
-    
-    unit->frameSize = 1024; // Default is 2048
-    unit->sampleRate = SAMPLERATE; // Shouldn't be static
+    unit->frameSize = IN0(2); // Default in Essentia is 2048 (in SC class as well)
+    unit->sampleRate = SAMPLERATE;
     unit->zeropadding = 0;
     
     unit->spec = new vector<Real>;
     unit->windowedframe = new vector<Real>;
     unit->audioBuffer_dc = new vector<Real>;
     unit->audioBuffer = new vector<Real>;
-    for(int i=0; i<1024; i++) // I should look into RTAlloc?
+    for(int i=0; i<unit->frameSize; i++) // I should look into RTAlloc?
         unit->audioBuffer->push_back(0);
     unit->writePos = 0;
     unit->bComputed = false;
 
     initEssentia(unit);
     
-    cout << "EssentiaHFC object made, typeIndex = " << IN0(1) << endl;
     SETCALC(processs);
     processs(unit, 1);
 }
@@ -91,7 +87,6 @@ void linkAlgorithms(EssentiaHFC* unit){
     unit->dcremoval->input("signal").set(*(unit->audioBuffer));
     unit->dcremoval->output("signal").set(*(unit->audioBuffer_dc));
     
-//    cout << "FrameSize: " << (*(unit->audioBuffer_dc)).size() << endl;
     unit->window->input("frame").set(*(unit->audioBuffer_dc));
     unit->window->output("frame").set(*(unit->windowedframe));
     
@@ -108,7 +103,7 @@ void processs(EssentiaHFC *unit, int inNumSamples){
         Real value = (Real) IN(0)[i];
         unit->audioBuffer->at(unit->writePos) = value;
         unit->writePos++;
-        if(unit->writePos >= 1024){
+        if(unit->writePos >= unit->frameSize){
             unit->writePos = 0;
             bCalculate = true;
         }
@@ -116,16 +111,11 @@ void processs(EssentiaHFC *unit, int inNumSamples){
     
     if(bCalculate){
         unit->dcremoval->compute();
-    //    cout << (*(unit->audioBuffer))[0] << endl;
-    //    cout << (*(unit->audioBuffer_dc))[0] << endl;
         unit->window->compute();
         unit->spectrum->compute();
         unit->hfc->compute();
         unit->bComputed = true;
-    //        cout << unit->hfcValue << endl;
     }
-    
-//    unit->hfcValue
     
     for(int i=0; i<inNumSamples; i++){
         if(unit->bComputed){
@@ -141,10 +131,8 @@ void EssentiaHFC_Dtor(EssentiaHFC* unit){
     unit->audioBuffer_dc->clear();
     unit->windowedframe->clear();
     unit->spec->clear();
-//    RTFree(unit->mWorld, unit->historyBuffer);
 }
 
-// SuperCollider wants this function to load the plug-in
 PluginLoad(EssentiaHFC){
     ft = inTable;
     DefineDtorUnit(EssentiaHFC);
