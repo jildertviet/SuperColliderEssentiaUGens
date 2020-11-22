@@ -31,39 +31,63 @@ struct EssentiaHFC : public Unit {
     int sampleRate;
     int zeropadding;
     int bufferSize;
+    string type;
+    int writePos;
+    bool bComputed;
 };
 
 extern "C"{
     void EssentiaHFC_Ctor(EssentiaHFC* unit);
     void processs(EssentiaHFC *unit, int inNumSamples);
     void EssentiaHFC_Dtor(EssentiaHFC* unit);
+    void initEssentia(EssentiaHFC* unit);
+    void linkAlgorithms(EssentiaHFC* unit);
 }
 
 void EssentiaHFC_Ctor(EssentiaHFC *unit){
-    unit->frameSize = 1024;
-    unit->sampleRate = 441000; // Shouldn't be static
+    string types[3] = {"Masri","Jensen","Brossier"};
+    unit->type = types[(int)IN0(1)];
+    
+    unit->frameSize = 1024; // Default is 2048
+    unit->sampleRate = SAMPLERATE; // Shouldn't be static
     unit->zeropadding = 0;
     
     unit->spec = new vector<Real>;
     unit->windowedframe = new vector<Real>;
     unit->audioBuffer_dc = new vector<Real>;
     unit->audioBuffer = new vector<Real>;
+    for(int i=0; i<1024; i++) // I should look into RTAlloc?
+        unit->audioBuffer->push_back(0);
+    unit->writePos = 0;
+    unit->bComputed = false;
 
-//    int firstArg = IN0(1);
+    initEssentia(unit);
     
+    cout << "EssentiaHFC object made, typeIndex = " << IN0(1) << endl;
+    SETCALC(processs);
+    processs(unit, 1);
+}
+
+void initEssentia(EssentiaHFC* unit){
     essentia::init();
     AlgorithmFactory& factory = AlgorithmFactory::instance();
 
     // Initiate algorithms
-    unit->dcremoval = factory.create("DCRemoval", "sampleRate", unit->sampleRate);
+    unit->dcremoval = factory.create("DCRemoval",
+                                     "sampleRate", unit->sampleRate);
     unit->window = factory.create("Windowing",
                             "type", "hann",
                             "zeroPadding", unit->zeropadding);
     unit->spectrum = factory.create("Spectrum",
-                              "size", unit->frameSize);
-    unit->hfc = factory.create("HFC", "sampleRate", unit->sampleRate);
+                              "size", unit->frameSize); // the expected size of the input audio signal (this is an optional parameter to optimize memory allocation)
+    unit->hfc = factory.create("HFC",
+                               "sampleRate", unit->sampleRate,
+                               "type", unit->type);
+    // Link all the algorithms
+    linkAlgorithms(unit);
+}
 
-    // Link
+void linkAlgorithms(EssentiaHFC* unit){
     unit->dcremoval->input("signal").set(*(unit->audioBuffer));
     unit->dcremoval->output("signal").set(*(unit->audioBuffer_dc));
     
@@ -76,34 +100,39 @@ void EssentiaHFC_Ctor(EssentiaHFC *unit){
     
     unit->hfc->input("spectrum").set(*(unit->spec));
     unit->hfc->output("hfc").set(unit->hfcValue);
-    
-    cout << "EssentiaHFC object made" << endl;
-    SETCALC(processs);
-    processs(unit, 1);
 }
 
 void processs(EssentiaHFC *unit, int inNumSamples){
-    unit->audioBuffer->clear();
-    
-    for (int i=0; i<inNumSamples;i++){ // Read the incoming signal
+    bool bCalculate = false;
+    for (int i=0; i<inNumSamples; i++){ // Read the incoming signal
         Real value = (Real) IN(0)[i];
-        unit->audioBuffer->push_back(value);
+        unit->audioBuffer->at(unit->writePos) = value;
+        unit->writePos++;
+        if(unit->writePos >= 1024){
+            unit->writePos = 0;
+            bCalculate = true;
+        }
     }
-
-    unit->dcremoval->compute();
-//    cout << (*(unit->audioBuffer))[0] << endl;
-//    cout << (*(unit->audioBuffer_dc))[0] << endl;
-    if(inNumSamples>1){
+    
+    if(bCalculate){
+        unit->dcremoval->compute();
+    //    cout << (*(unit->audioBuffer))[0] << endl;
+    //    cout << (*(unit->audioBuffer_dc))[0] << endl;
         unit->window->compute();
         unit->spectrum->compute();
         unit->hfc->compute();
-//        cout << unit->hfcValue << endl;
+        unit->bComputed = true;
+    //        cout << unit->hfcValue << endl;
     }
     
 //    unit->hfcValue
     
     for(int i=0; i<inNumSamples; i++){
-        OUT(0)[i] = unit->hfcValue;
+        if(unit->bComputed){
+            OUT(0)[i] = unit->hfcValue;
+        } else{
+            OUT(0)[i] = 0;
+        }
     }
 }
 
