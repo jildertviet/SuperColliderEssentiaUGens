@@ -28,22 +28,22 @@ struct EssentiaSpectralComplexity : public Unit {
     
     Real spectralComplexityValue;
     int frameSize;
-    int sampleRate;
     int zeropadding;
     int bufferSize;
     int writePos;
+    bool bComputed;
 };
 
 extern "C"{
     void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity* unit);
     void processs(EssentiaSpectralComplexity *unit, int inNumSamples);
     void EssentiaSpectralComplexity_Dtor(EssentiaSpectralComplexity* unit);
+    void initEssentia(EssentiaSpectralComplexity* unit);
+    void linkAlgorithms(EssentiaSpectralComplexity* unit);
 }
 
-void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit)
-{
+void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit){
     unit->frameSize = 1024;
-    unit->sampleRate = 44100;
     unit->zeropadding = 0;
     unit->writePos = 0;
     
@@ -51,21 +51,31 @@ void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit)
     unit->windowedframe = new vector<Real>;
     unit->audioBuffer_dc = new vector<Real>;
     unit->audioBuffer = new vector<Real>(unit->frameSize, 0);
-//    cout << unit->audioBuffer->size() << endl;
-
     
+    initEssentia(unit);
+
+    SETCALC(processs);
+//    processs(unit, 1);
+}
+
+void initEssentia(EssentiaSpectralComplexity* unit){
     essentia::init();
     AlgorithmFactory& factory = AlgorithmFactory::instance();
 
     // Initiate algorithms
-    unit->dcremoval = factory.create("DCRemoval", "sampleRate", 44100);
+    unit->dcremoval = factory.create("DCRemoval", "sampleRate", SAMPLERATE);
     unit->window = factory.create("Windowing",
                             "type", "hann",
                             "zeroPadding", 0);
     unit->spectrum = factory.create("Spectrum",
                               "size", unit->frameSize);
-    unit->SpectralComplexity = factory.create("SpectralComplexity", "sampleRate", 44100);
+    unit->SpectralComplexity = factory.create("SpectralComplexity", "sampleRate", SAMPLERATE);
+    
+    // Link all the algorithms
+    linkAlgorithms(unit);
+}
 
+void linkAlgorithms(EssentiaSpectralComplexity* unit){
     // Link
     unit->dcremoval->input("signal").set(*(unit->audioBuffer));
     unit->dcremoval->output("signal").set(*(unit->audioBuffer_dc));
@@ -78,51 +88,37 @@ void EssentiaSpectralComplexity_Ctor(EssentiaSpectralComplexity *unit)
     
     unit->SpectralComplexity->input("spectrum").set(*(unit->spec));
     unit->SpectralComplexity->output("spectralComplexity").set(unit->spectralComplexityValue);
-    
-    cout << "JildertSpectralComplexity object made" << endl;
-    SETCALC(processs);
-//    processs(unit, 1);
 }
 
-
-
-
 void processs(EssentiaSpectralComplexity *unit, int inNumSamples){
-    if(unit->writePos >= unit->frameSize){
-        unit->writePos = 0;
-//        unit->audioBuffer->clear();
-    }
-//    cout << unit->writePos << endl;
-    
-    for (int i=0; i<inNumSamples;i++){
+    bool bCalculate = false;
+    for (int i=0; i<inNumSamples; i++){ // Read the incoming signal
         Real value = (Real) IN(0)[i];
-        unit->audioBuffer->at((unit->writePos)+i) = value;
+        unit->audioBuffer->at(unit->writePos) = value;
+        unit->writePos++;
+        if(unit->writePos >= unit->frameSize){
+            unit->writePos = 0;
+            bCalculate = true;
+        }
     }
     
-    unit->dcremoval->compute();
     
-    if(inNumSamples>1){
+    if(bCalculate){
+        unit->dcremoval->compute();
         unit->window->compute();
         unit->spectrum->compute();
         unit->SpectralComplexity->compute();
+        unit->bComputed = true;
     }
-    
-//    cout << unit->spectralComplexityValue << endl;
     
     for(int i=0; i<inNumSamples; i++){
-        OUT(0)[i] = unit->spectralComplexityValue;
+        if(unit->bComputed){
+            OUT(0)[i] = unit->spectralComplexityValue;
+        } else{
+            OUT(0)[i] = 0;
+        }
     }
-    
-    unit->writePos+=inNumSamples;
 }
-
-
-
-
-
-
-
-
 
 void EssentiaSpectralComplexity_Dtor(EssentiaSpectralComplexity* unit){
     unit->audioBuffer->clear();

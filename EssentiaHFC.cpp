@@ -61,7 +61,7 @@ void EssentiaHFC_Ctor(EssentiaHFC *unit){
     initEssentia(unit);
     
     SETCALC(processs);
-    processs(unit, 1);
+//    processs(unit, 1);
 }
 
 void initEssentia(EssentiaHFC* unit){
