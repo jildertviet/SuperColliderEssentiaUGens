@@ -39,8 +39,7 @@ extern "C"{
     void EssentiaHFC_Dtor(EssentiaHFC* unit);
 }
 
-void EssentiaHFC_Ctor(EssentiaHFC *unit)
-{
+void EssentiaHFC_Ctor(EssentiaHFC *unit){
     unit->frameSize = 1024;
     unit->sampleRate = 441000;
     unit->zeropadding = 0;
@@ -86,7 +85,7 @@ void EssentiaHFC_Ctor(EssentiaHFC *unit)
 void processs(EssentiaHFC *unit, int inNumSamples){
     unit->audioBuffer->clear();
     
-    for (int i=0; i<inNumSamples;i++){
+    for (int i=0; i<inNumSamples;i++){ // Read the incoming signal
         Real value = (Real) IN(0)[i];
         unit->audioBuffer->push_back(value);
     }
@@ -101,8 +100,7 @@ void processs(EssentiaHFC *unit, int inNumSamples){
 //        cout << unit->hfcValue << endl;
     }
     
-//    unit->hfcValue = unit->hfcValue / 78000;
-    unit->hfcValue /= 200;
+//    unit->hfcValue
     
     for(int i=0; i<inNumSamples; i++){
         OUT(0)[i] = unit->hfcValue;
