@@ -8,14 +8,14 @@ Install [Essentia](https://github.com/MTG/essentia).
 When compiling from source, make sure to avoid `--build-static`, otherwise the dynamic library (.so) won't get installed.  
 
 ## Installation
-Currently you've got to build each UGen seperately. Go into the directory of the plugin, and do this:  
-Make sure to change the path of the SuperCollider source, and the path for your extensions (home/user/.local/share/SuperCollider/Extensions) 
+Currently you've got to build each UGen seperately. Go into the directory of the UGen, and do this:  
 ~~~
 mkdir build && cd build
 cmake -DSC_PATH=~/Downloads/supercollider -DCMAKE_INSTALL_PREFIX=/path/to/extensions ..
 make
 make install
 ~~~
+Make sure to change the path of the SuperCollider source, and the path for your extensions (home/user/.local/share/SuperCollider/Extensions) 
 
 ## Issues
 ### Library not found
@@ -25,7 +25,7 @@ Then check the CMakeLists.txt line 89, if the paths correspond.
 Sometimes the .so library isn't found, this results in a message like this (and a server crash) when booting the server.  
 `ERROR: dlopen '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so' err '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so: undefined symbol: _ZN8essentia15EssentiaFactoryINS_8standard9AlgorithmEE9_instanceE'`
 
-## Example
+## Examples
 ~~~
 (
 { // Example 1
