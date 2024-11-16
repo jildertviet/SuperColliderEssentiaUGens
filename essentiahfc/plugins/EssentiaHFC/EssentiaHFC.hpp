@@ -35,6 +35,8 @@ private:
   int frameSize;
   int writePos;
   bool computed;
+  const float *input = in(0);
+  float *output = out(0);
 };
 
 } // namespace EssentiaHFC

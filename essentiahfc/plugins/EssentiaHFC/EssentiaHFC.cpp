@@ -10,7 +10,7 @@ static InterfaceTable *ft;
 namespace EssentiaHFC {
 
 EssentiaHFC::EssentiaHFC()
-    : frameSize(in(2)[0]), // Frame size input
+    : frameSize(in0(2)), // Frame size input
       writePos(0), computed(false) {
 
   std::cout << frameSize << std::endl;
@@ -21,21 +21,17 @@ EssentiaHFC::EssentiaHFC()
   windowedframe.resize(frameSize, 0.0f);
 
   spec.resize(frameSize / 2 + 1, 0.0f);
-  std::cout << "X" << std::endl;
 
   initializeEssentia();
-  std::cout << "X" << std::endl;
   linkAlgorithms();
+  input = in(0);
+  output = out(0);
 
-  std::cout << "X" << std::endl;
   mCalcFunc = make_calc_function<EssentiaHFC, &EssentiaHFC::next>();
-  next(1); // Prime the DSP loop
+  next(1);
 }
 
-EssentiaHFC::~EssentiaHFC() {
-  // Essentia algorithms don't need explicit destruction.
-  essentia::shutdown();
-}
+EssentiaHFC::~EssentiaHFC() { essentia::shutdown(); }
 
 void EssentiaHFC::initializeEssentia() {
   auto &factory = essentia::standard::AlgorithmFactory::instance();
@@ -73,11 +69,6 @@ void EssentiaHFC::computeEssentia() {
 }
 
 void EssentiaHFC::next(int nSamples) {
-  // std::cout << "Y" << std::endl;
-  const float *input = in(0);
-  // std::cout << "Y" << std::endl;
-  float *output = out(0);
-  // std::cout << "Y" << std::endl;
 
   for (int i = 0; i < nSamples; ++i) {
     audioBuffer[writePos++] = input[i];
