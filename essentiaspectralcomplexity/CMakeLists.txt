@@ -83,6 +83,26 @@ sc_add_server_plugin(
     "${EssentiaSpectralComplexity_schelp_files}"
 )
 
+find_library(ESSENTIA_LIBRARY NAMES essentia PATHS /usr/local/lib)
+
+if(ESSENTIA_LIBRARY)
+    message(STATUS "Found Essentia library: ${ESSENTIA_LIBRARY}")
+    if(SCSYNTH)
+    target_link_libraries("EssentiaSpectralComplexity_scsynth" ${ESSENTIA_LIBRARY})
+    target_link_options("EssentiaSpectralComplexity_scsynth" PRIVATE -Wl,-rpath,/usr/local/lib)
+  endif()
+
+  if(SUPERNOVA)
+    target_link_libraries("EssentiaSpectralComplexity_supernova" ${ESSENTIA_LIBRARY})
+    target_link_options("EssentiaSpectralComplexity_supernova" PRIVATE -Wl,-rpath,/usr/local/lib)
+  endif()
+else()
+    message(FATAL_ERROR "Essentia library not found in /usr/local/lib")
+endif()
+# Link the Essentia library
+
+
+
 # End target EssentiaSpectralComplexity
 ####################################################################################################
 

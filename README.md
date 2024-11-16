@@ -25,14 +25,29 @@ Then check the CMakeLists.txt line 89, if the paths correspond.
 Sometimes the .so library isn't found, this results in a message like this (and a server crash) when booting the server.  
 `ERROR: dlopen '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so' err '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so: undefined symbol: _ZN8essentia15EssentiaFactoryINS_8standard9AlgorithmEE9_instanceE'`
 
-# Example
+## Example
 ~~~
 (
-{
+{ // Example 1
 	var hfc, sin;
 	sin = SinOsc.ar(LFNoise1.kr(1, 400, 1000), mul: 1);
 	hfc = EssentiaHFC.ar(sin).poll;
 	sin!2; // Only play the sine oscillator, show the HFC value with .poll
+}.play;
+)
+
+(
+{ // Example 2
+    var sc; 
+    var index = Demand.kr(Impulse.kr(1), 0, Dseq([0, 1, 2,3], inf));
+    var osc = Select.ar(index, [
+      PinkNoise.ar(0.4),
+      SinOsc.ar(220, mul: 0.3),
+      Saw.ar(220, mul: 0.3),
+      WhiteNoise.ar(0.1)
+    ]);
+    sc = EssentiaSpectralComplexity.kr(osc).poll;
+    osc!2;
 }.play;
 )
 ~~~
