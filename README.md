@@ -1,29 +1,30 @@
 # SuperColliderEssentiaUGens
 Running Essentia algorithms in SuperCollider
 
-# Installation
-(Currently only tested on OSX 10.15.7 w/ SuperCollider 3.11)
+## Requirements
+Tested on Linux Mint with SuperCollider 3.14 and Essentia 2.1 beta 5.
 
-Install [Essentia](https://github.com/MTG/essentia) with Homebrew.
-~~~
-brew install essentia --HEAD
-~~~
-I also needed to install Eigen (otherwise I had this error: “unsupported/Eigen/CXX11/Tensor: No such file or directory”)
-~~~
-brew install eigen
-~~~
-To compile the UGen you need to have a copy of the SC source on your computer, in the example below you can see my copy is in ~/Downloads/
+Install [Essentia](https://github.com/MTG/essentia).
+When compiling from source, make sure to avoid `--build-static`, otherwise the dynamic library (.so) won't get installed. 
 
-Then clone this repository into your Extensions folder. 
-
-Then create a directory called build (CMake wants this), go there, and install w/ CMake:
+## Installation
+Currently you've got to build each UGen seperately. Go into the directory of the plugin, and do this:
+Make sure to change the path of the SuperCollider source, and the path for your extensions (home/user/.local/share/SuperCollider/Extensions) 
 ~~~
 mkdir build && cd build
-cmake -DESSENTIA_PATH=/usr/local/opt/essentia -DEIGEN_PATH=/usr/local/opt/eigen -DSC_PATH=~/Downloads/supercollider ..
+cmake -DSC_PATH=~/Downloads/supercollider -DCMAKE_INSTALL_PREFIX=/path/to/extensions ..
 make
+make install
 ~~~
-# Disclaimer
-The C++ code is quite old, experimental and messy. Hopefully I'll change this. However, this example still demonstrates the succesfull implementation of Essentia within SuperCollider
+
+## Issues
+### Library not found
+Check where (and if) the libessentia.so is installed.
+Then check the CMakeLists.txt line 89, if the paths correspond.
+
+Sometimes the .so library isn't found, this results in a message like this (and a server crash) when booting the server.
+`ERROR: dlopen '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so' err '/home/user/.local/share/SuperCollider/Extensions/EssentiaHFC/EssentiaHFC/EssentiaHFC_scsynth.so: undefined symbol: _ZN8essentia15EssentiaFactoryINS_8standard9AlgorithmEE9_instanceE'`
+
 # Example
 ~~~
 (
