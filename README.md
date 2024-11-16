@@ -31,18 +31,8 @@ Sometimes the .so library isn't found, this results in a message like this (and 
 {
 	var hfc, sin;
 	sin = SinOsc.ar(LFNoise1.kr(1, 400, 1000), mul: 1);
-	hfc = EssentiaHFC.kr(sin).poll;
+	hfc = EssentiaHFC.ar(sin).poll;
 	sin!2; // Only play the sine oscillator, show the HFC value with .poll
-}.play;
-)
-
-// Or try this
-
-(
-{
-    var sc, osc = WhiteNoise.ar(1) * LFPulse.kr(1);
-    sc = EssentiaSpectralComplexity.kr(osc).poll;
-    osc!2;
 }.play;
 )
 ~~~
