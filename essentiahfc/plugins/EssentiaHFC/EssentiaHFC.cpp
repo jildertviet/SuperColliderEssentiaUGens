@@ -10,15 +10,16 @@ static InterfaceTable *ft;
 namespace EssentiaHFC {
 
 EssentiaHFC::EssentiaHFC()
-    : frameSize(static_cast<int>(in0(1))), // Frame size input
+    : frameSize(in(2)[0]), // Frame size input
       writePos(0), computed(false) {
 
-  std::cout << "X" << std::endl;
+  std::cout << frameSize << std::endl;
   essentia::init();
   std::cout << "X" << std::endl;
   audioBuffer.resize(frameSize, 0.0f);
   audioBuffer_dc.resize(frameSize, 0.0f);
   windowedframe.resize(frameSize, 0.0f);
+
   spec.resize(frameSize / 2 + 1, 0.0f);
   std::cout << "X" << std::endl;
 
@@ -72,10 +73,11 @@ void EssentiaHFC::computeEssentia() {
 }
 
 void EssentiaHFC::next(int nSamples) {
-  std::cout << "Y" << std::endl;
+  // std::cout << "Y" << std::endl;
   const float *input = in(0);
+  // std::cout << "Y" << std::endl;
   float *output = out(0);
-  std::cout << "Y" << std::endl;
+  // std::cout << "Y" << std::endl;
 
   for (int i = 0; i < nSamples; ++i) {
     audioBuffer[writePos++] = input[i];
@@ -84,7 +86,6 @@ void EssentiaHFC::next(int nSamples) {
       writePos = 0;
       computeEssentia();
     }
-
     output[i] = computed ? hfcValue : 0.0f;
   }
 }
