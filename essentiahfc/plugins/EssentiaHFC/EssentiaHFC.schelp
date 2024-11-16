@@ -1,0 +1,26 @@
+class:: EssentiaHFC
+summary:: Essentia lib HFC
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+Essentia lib HFC
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ EssentiaHFC.ar(/* TODO */) }.play
+
+::
