@@ -1,0 +1,26 @@
+class:: EssentiaOnsetDetector
+summary:: Onset Detection w/ Essentia lib
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+Onset Detection w/ Essentia lib
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ EssentiaOnsetDetector.ar(/* TODO */) }.play
+
+::
