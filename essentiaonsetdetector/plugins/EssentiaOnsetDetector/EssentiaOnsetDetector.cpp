@@ -12,6 +12,7 @@ EssentiaOnsetDetector::EssentiaOnsetDetector()
     : frameSize(in0(1)), // Frame size input
       writePos(0) {
   essentia::init();
+  essentia::warningLevelActive = false; // deactivate warnings
   audioBuffer.resize(frameSize, 0.0f);
   // audioBuffer_dc.resize(frameSize, 0.0f);
   windowedframe.resize(frameSize, 0.0f);

@@ -15,6 +15,7 @@ EssentiaHFC::EssentiaHFC()
 
   std::cout << frameSize << std::endl;
   essentia::init();
+  essentia::warningLevelActive = false; // deactivate warnings
   std::cout << "X" << std::endl;
   audioBuffer.resize(frameSize, 0.0f);
   audioBuffer_dc.resize(frameSize, 0.0f);
