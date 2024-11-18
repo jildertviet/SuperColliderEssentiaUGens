@@ -46,7 +46,7 @@ Sometimes the .so library isn't found, this results in a message like this (and 
       Saw.ar(220, mul: 0.3),
       WhiteNoise.ar(0.1)
     ]);
-    sc = EssentiaSpectralComplexity.kr(osc).poll;
+    sc = EssentiaSpectralComplexity.ar(osc).poll;
     osc!2;
 }.play;
 )
